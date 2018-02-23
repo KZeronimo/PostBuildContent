@@ -112,7 +112,7 @@
 [difftool]
 	prompt = false
 [difftool "semanticmerge"]
-	cmd = \"C:\\Users\\<UserName>\\AppData\\Local\\semanticmerge\\semanticmergetool.exe\" -s \"$LOCAL\" -d \"$REMOTE\"
+	cmd = \"C:\\Users\\<UserName>\\AppData\\Local\\semanticmerge\\semanticmergetool.exe\" -s \"$LOCAL\" -d \"$REMOTE\" --nolangwarn
 [difftool "vscode"]
 	cmd = code --wait --diff $LOCAL $REMOTE
 [merge]
