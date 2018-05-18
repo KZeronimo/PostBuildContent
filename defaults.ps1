@@ -27,6 +27,7 @@ $global:ThemeSettings = New-Object -TypeName PSObject -Property @{
         SegmentSeparatorForwardSymbol    = [char]::ConvertFromUtf32(0xE0B1)
         SegmentSeparatorBackwardSymbol   = [char]::ConvertFromUtf32(0xE0B3)
         PathSeparator                    = '\'
+        VirtualEnvSymbol                 = [char]::ConvertFromUtf32(0xE606)
     }
     Colors                           = @{
         GitDefaultColor                  = [ConsoleColor]::DarkGreen
@@ -37,13 +38,15 @@ $global:ThemeSettings = New-Object -TypeName PSObject -Property @{
         DriveForegroundColor             = [ConsoleColor]::DarkBlue
         PromptBackgroundColor            = [ConsoleColor]::DarkBlue
         PromptSymbolColor                = [ConsoleColor]::White
-        SessionInfoBackgroundColor       = [ConsoleColor]::Magenta
+        SessionInfoBackgroundColor       = [ConsoleColor]::Black
         SessionInfoForegroundColor       = [ConsoleColor]::White
         CommandFailedIconForegroundColor = [ConsoleColor]::DarkRed
         AdminIconForegroundColor         = [ConsoleColor]::DarkYellow
         WithBackgroundColor              = [ConsoleColor]::DarkRed
         WithForegroundColor              = [ConsoleColor]::White
         GitForegroundColor               = [ConsoleColor]::Black
+        VirtualEnvForegroundColor        = [ConsoleColor]::White
+        VirtualEnvBackgroundColor        = [ConsoleColor]::Red
     }
 }
 
@@ -73,5 +76,13 @@ $global:PSColor = @{
 
 # PSReadline options
 Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
-Set-PSReadlineOption -TokenKind Command -ForegroundColor DarkBlue
-Set-PSReadlineOption -TokenKind Parameter -ForegroundColor Yellow
+if ((Get-Module PSReadline).Version.Major -lt 2) {
+    Set-PSReadlineOption -TokenKind Command -ForegroundColor DarkBlue
+    Set-PSReadlineOption -TokenKind Parameter -ForegroundColor Yellow
+}
+else {
+    Set-PSReadlineOption -Colors @{
+        "Command" = [ConsoleColor]::DarkBlue
+        "Parameter" = [ConsoleColor]::Yellow
+    }
+}
