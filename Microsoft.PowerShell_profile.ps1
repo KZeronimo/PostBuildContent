@@ -1,9 +1,11 @@
-# Only load oh-my-posh if PS is running from ConEmu
+﻿# Only load oh-my-posh if PS is running from ConEmu
 if ($env:ConEmuTask -or $env:ConEmuPID)
 {
     # Import oh-my-posh and dependecies
     Import-Module -Name posh-git -ErrorAction SilentlyContinue
     Import-Module -Name oh-my-posh
+    # Set Theme
+    Set-Theme Agnoster
 	# Shorten prompt by providing your uesername
 	$DefaultUser = $env:UserName
 }
