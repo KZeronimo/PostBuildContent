@@ -1,60 +1,85 @@
 # Oh-My-Posh default settings
+function Get-ThemesLocation {
+    $folderName = "PoshThemes"
+    if ($PROFILE) {
+        return (Join-Path (Split-Path -Parent $PROFILE) $folderName)
+    }
+    return "~\${$folderName}"
+}
+
 $global:ThemeSettings = New-Object -TypeName PSObject -Property @{
-    CurrentThemeLocation             = "$PSScriptRoot\Themes\Agnoster.psm1"
-    MyThemesLocation                 = '~\Documents\WindowsPowerShell\PoshThemes'
-    ErrorCount                       = 0
-    GitSymbols                       = @{
+    CurrentUser          = [System.Environment]::UserName
+    CurrentThemeLocation = "$PSScriptRoot\Themes\Agnoster.psm1"
+    MyThemesLocation     = Get-ThemesLocation
+    ErrorCount           = 0
+    GitSymbols           = @{
         BranchSymbol                  = [char]::ConvertFromUtf32(0xE0A0)
-        BeforeStashSymbol                = '{'
-        AfterStashSymbol                 = '}'
-        DelimSymbol                      = '|'
-        LocalWorkingStatusSymbol         = '!'
-        LocalStagedStatusSymbol          = '~'
-        LocalDefaultStatusSymbol         = ''
-        BranchUntrackedSymbol            = [char]::ConvertFromUtf32(0x2260)
-        BranchIdenticalStatusToSymbol    = [char]::ConvertFromUtf32(0x2261)
-        BranchAheadStatusSymbol          = [char]::ConvertFromUtf32(0x2191)
-        BranchBehindStatusSymbol         = [char]::ConvertFromUtf32(0x2193)
+        BeforeStashSymbol             = '{'
+        BeforeIndexSymbol             = ''
+        BeforeWorkingSymbol           = ''
+        AfterStashSymbol              = '}'
+        DelimSymbol                   = '|'
+        LocalWorkingStatusSymbol      = '!'
+        LocalStagedStatusSymbol       = '~'
+        LocalDefaultStatusSymbol      = ''
+        BranchUntrackedSymbol         = [char]::ConvertFromUtf32(0x2260)
+        BranchIdenticalStatusToSymbol = [char]::ConvertFromUtf32(0x2261)
+        BranchAheadStatusSymbol       = [char]::ConvertFromUtf32(0x2191)
+        BranchBehindStatusSymbol      = [char]::ConvertFromUtf32(0x2193)
+        OriginSymbols                 = @{
+            Github    = [char]::ConvertFromUtf32(0xF09B)
+            Bitbucket = [char]::ConvertFromUtf32(0xF171)
+            GitLab    = [char]::ConvertFromUtf32(0xF296)
+        }
     }
-    PromptSymbols                    = @{
-        StartSymbol                      = ' '
-        TruncatedFolderSymbol            = '..'
-        PromptIndicator                  = [char]::ConvertFromUtf32(0x25B6)
-        FailedCommandSymbol              = [char]::ConvertFromUtf32(0xE125)
-        ElevatedSymbol                   = [char]::ConvertFromUtf32(0xE801)
-        SegmentForwardSymbol             = [char]::ConvertFromUtf32(0xE0B0)
-        SegmentBackwardSymbol            = [char]::ConvertFromUtf32(0xE0B2)
-        SegmentSeparatorForwardSymbol    = [char]::ConvertFromUtf32(0xE0B1)
-        SegmentSeparatorBackwardSymbol   = [char]::ConvertFromUtf32(0xE0B3)
-        PathSeparator                    = '\'
-        VirtualEnvSymbol                 = [char]::ConvertFromUtf32(0xE606)
+    PromptSymbols        = @{
+        StartSymbol                    = ' '
+        TruncatedFolderSymbol          = '..'
+        PromptIndicator                = [char]::ConvertFromUtf32(0x25B6)
+        FailedCommandSymbol            = [char]::ConvertFromUtf32(0xE125)
+        ElevatedSymbol                 = [char]::ConvertFromUtf32(0xE801)
+        SegmentForwardSymbol           = [char]::ConvertFromUtf32(0xE0B0)
+        SegmentBackwardSymbol          = [char]::ConvertFromUtf32(0xE0B2)
+        SegmentSeparatorForwardSymbol  = [char]::ConvertFromUtf32(0xE0B1)
+        SegmentSeparatorBackwardSymbol = [char]::ConvertFromUtf32(0xE0B3)
+        PathSeparator                  = [System.IO.Path]::DirectorySeparatorChar
+        VirtualEnvSymbol               = [char]::ConvertFromUtf32(0xE606)
+        HomeSymbol                     = '~'
+        RootSymbol                     = '#'
+        UNCSymbol                      = '§'
     }
-    Colors                           = @{
-        GitDefaultColor                  = [ConsoleColor]::DarkGreen
-        GitLocalChangesColor             = [ConsoleColor]::DarkYellow
-        GitNoLocalChangesAndAheadColor   = [ConsoleColor]::DarkMagenta
-        PromptForegroundColor            = [ConsoleColor]::White
-        PromptHighlightColor             = [ConsoleColor]::DarkBlue
-        DriveForegroundColor             = [ConsoleColor]::DarkBlue
-        PromptBackgroundColor            = [ConsoleColor]::DarkBlue
-        PromptSymbolColor                = [ConsoleColor]::White
-        SessionInfoBackgroundColor       = [ConsoleColor]::Black
-        SessionInfoForegroundColor       = [ConsoleColor]::White
-        CommandFailedIconForegroundColor = [ConsoleColor]::DarkRed
-        AdminIconForegroundColor         = [ConsoleColor]::DarkYellow
-        WithBackgroundColor              = [ConsoleColor]::DarkRed
-        WithForegroundColor              = [ConsoleColor]::White
-        GitForegroundColor               = [ConsoleColor]::Black
-        VirtualEnvForegroundColor        = [ConsoleColor]::White
-        VirtualEnvBackgroundColor        = [ConsoleColor]::Red
+    Colors               = @{
+        GitDefaultColor                         = [ConsoleColor]::DarkGreen
+        GitLocalChangesColor                    = [ConsoleColor]::DarkYellow
+        GitNoLocalChangesAndAheadColor          = [ConsoleColor]::DarkMagenta
+        GitNoLocalChangesAndBehindColor         = [ConsoleColor]::DarkRed
+        GitNoLocalChangesAndAheadAndBehindColor = [ConsoleColor]::DarkRed
+        PromptForegroundColor                   = [ConsoleColor]::White
+        PromptHighlightColor                    = [ConsoleColor]::DarkBlue
+        DriveForegroundColor                    = [ConsoleColor]::DarkBlue
+        PromptBackgroundColor                   = [ConsoleColor]::DarkBlue
+        PromptSymbolColor                       = [ConsoleColor]::White
+        SessionInfoBackgroundColor              = [ConsoleColor]::Black
+        SessionInfoForegroundColor              = [ConsoleColor]::White
+        CommandFailedIconForegroundColor        = [ConsoleColor]::DarkRed
+        AdminIconForegroundColor                = [ConsoleColor]::DarkYellow
+        WithBackgroundColor                     = [ConsoleColor]::DarkRed
+        WithForegroundColor                     = [ConsoleColor]::White
+        GitForegroundColor                      = [ConsoleColor]::Black
+        VirtualEnvForegroundColor               = [ConsoleColor]::White
+        VirtualEnvBackgroundColor               = [ConsoleColor]::Red
+    }
+    Options              = @{
+        ConsoleTitle  = $true
+        OriginSymbols = $false
     }
 }
 
 # PSColor default settings
 $global:PSColor = @{
-    File = @{
+    File    = @{
         Default    = @{ Color = 'White' }
-        Directory  = @{ Color = 'DarkBlue'}
+        Directory  = @{ Color = 'DarkBlue' }
         Hidden     = @{ Color = 'Gray'; Pattern = '^\.' }
         Code       = @{ Color = 'Magenta'; Pattern = '\.(java|c|cpp|cs|js|css|html)$' }
         Executable = @{ Color = 'Red'; Pattern = '\.(exe|bat|cmd|py|pl|ps1|psm1|vbs|rb|reg)$' }
@@ -66,23 +91,10 @@ $global:PSColor = @{
         Running = @{ Color = 'DarkGreen' }
         Stopped = @{ Color = 'DarkYellow' }
     }
-    Match = @{
+    Match   = @{
         Default    = @{ Color = 'White' }
-        Path       = @{ Color = 'Cyan'}
+        Path       = @{ Color = 'Cyan' }
         LineNumber = @{ Color = 'DarkGreen' }
         Line       = @{ Color = 'White' }
-    }
-}
-
-# PSReadline options
-Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
-if ((Get-Module PSReadline).Version.Major -lt 2) {
-    Set-PSReadlineOption -TokenKind Command -ForegroundColor DarkBlue
-    Set-PSReadlineOption -TokenKind Parameter -ForegroundColor Yellow
-}
-else {
-    Set-PSReadlineOption -Colors @{
-        "Command" = [ConsoleColor]::DarkBlue
-        "Parameter" = [ConsoleColor]::Yellow
     }
 }
