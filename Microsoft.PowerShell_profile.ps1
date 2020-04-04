@@ -1,5 +1,5 @@
-﻿# Only load oh-my-posh if PS is running from ConEmu
-if ($env:ConEmuTask -or $env:ConEmuPID)
+﻿# Only load oh-my-posh if PS is running from ConEmu or Windows Terminal
+if ($env:ConEmuTask -or $env:ConEmuPID -or $env:WT_SESSION)
 {
     # Import oh-my-posh and dependecies
     Import-Module -Name posh-git -ErrorAction SilentlyContinue
@@ -7,7 +7,13 @@ if ($env:ConEmuTask -or $env:ConEmuPID)
     # Set Theme
     Set-Theme Agnoster
 	# Shorten prompt by providing your uesername
-	$DefaultUser = $env:UserName
+	$DefaultUser = $env:USERNAME
+	# Substituions in WT for Cascadia Code Nerd Fonts
+	if ($env:WT_SESSION)
+	{
+		$ThemeSettings.PromptSymbols.ElevatedSymbol = [char]::ConvertFromUtf32(0x26A1)
+		$ThemeSettings.PromptSymbols.FailedCommandSymbol = [char]::ConvertFromUtf32(0xE20D)
+	}
 }
 else
 {
