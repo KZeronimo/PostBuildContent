@@ -8,7 +8,7 @@ Param (
  Import-Module "$env:ChocolateyInstall\helpers\chocolateyInstaller.psm1" -Force
 
  $packageNameVsix = -Join($Name,'.vsix')
- $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
+ $toolsDir = (Join-Path "$(Split-Path -parent $MyInvocation.MyCommand.Definition)" 'vsix')
  $installPath = (Get-VSSetupInstance).InstallationPath
 
  if(!$installPath) {
@@ -18,7 +18,8 @@ Param (
  $vsixInstaller = gci -File -Recurse -Filter vsixinstaller.exe -Path $installPath
 
  Write-Host "Downloading the $Name Visual Studio 2019 Extension ... "
- iwr -Uri $Url -OutFile (Join-Path $toolsDir $packageNameVsix)
+ New-Item -Path $toolsDir  -ItemType directory -Force
+ (New-Object System.Net.WebClient).DownloadFile($Url, (Join-Path $toolsDir $packageNameVsix))
 
  Write-Host "Installing the $Name Visual Studio 2019 Extension ... "
  $result = Install-Vsix -Installer $vsixInstaller.FullName -InstallFile (Join-Path $toolsDir $packageNameVsix)

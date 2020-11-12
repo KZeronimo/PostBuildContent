@@ -6,14 +6,14 @@ if ((Get-VSSetupInstance).InstallationVersion -ge "16.0") {
 }
 else {
     Write-Host "Downloading VS setup bootstrapper"
-    $contentPath = "C:\_PostBuildContent"
-    $vsPath = Join-Path "$contentPath" "\vs_enterprise.exe"
-    New-Item -Path $contentPath  -ItemType directory -Force
+    $toolsDir = (Join-Path "$(Split-Path -parent $MyInvocation.MyCommand.Definition)" 'vs')
+    $vsPath = Join-Path "$toolsDir" "\vs_enterprise.exe"
+    New-Item -Path $toolsDir  -ItemType directory -Force
 
-    iwr -Uri https://aka.ms/vs/16/release/vs_enterprise.exe -OutFile "$vsPath"
+    $url="https://aka.ms/vs/16/release/vs_enterprise.exe"
+    (New-Object System.Net.WebClient).DownloadFile($url, "$vsPath")
 
     Write-Host "Installing VS 2019 with Base Workloads"
-    $commandPath = "C:\_PostBuildContent\vs_enterprise.exe"
     $commandArgs = @("--installPath `"$(Join-Path ${env:ProgramFiles(x86)} `"Microsoft Visual Studio\2019\Enterprise`")`"")
     $commandArgs += "--add Microsoft.VisualStudio.Workload.CoreEditor;includeRecommended"
     $commandArgs += "--add Microsoft.VisualStudio.Workload.Data;includeRecommended"
@@ -33,7 +33,7 @@ else {
     $commandArgs += "--norestart"
     $commandArgs += "--wait"
 
-    $p = Start-Process -FilePath $commandPath -ArgumentList $commandArgs -PassThru -Wait
+    $p = Start-Process -FilePath $vsPath -ArgumentList $commandArgs -PassThru -Wait
 
     if ($p.ExitCode -eq 0 -or $p.ExitCode -eq 3010) {
         Write-Host "VS 2019 installation completed successfully" -ForegroundColor Green
