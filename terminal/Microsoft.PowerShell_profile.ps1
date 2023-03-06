@@ -1,11 +1,11 @@
-﻿# Only load oh-my-posh if PS is running from ConEmu or Windows Terminal
-if ($env:ConEmuTask -or $env:ConEmuPID -or $env:WT_SESSION)
+﻿# Only load oh-my-posh if PS is running from ConEmu, Windows Terminal, or Terminal in vscode
+if ($env:ConEmuTask -or $env:ConEmuPID -or $env:WT_SESSION -or $env:TERM_PROGRAM -eq "vscode")
 {
+    # Shorten prompt by providing your uesername
+    $env:POSH_SESSION_DEFAULT_USER = [System.Environment]::UserName
     # Import oh-my-posh and dependecies
     Import-Module -Name posh-git -ErrorAction SilentlyContinue
-    oh-my-posh --init --shell pwsh --config ~\AppData\Local\Programs\oh-my-posh\themes\agnoster-mesh.omp.json | Invoke-Expression
-	# Shorten prompt by providing your uesername (when session segment propery display_default is set to false)
-	$env:POSH_SESSION_DEFAULT_USER = [System.Environment]::UserName
+    oh-my-posh --init --shell pwsh --config $env:POSH_THEMES_PATH\agnoster-mesh.omp.json | Invoke-Expression
 }
 else
 {

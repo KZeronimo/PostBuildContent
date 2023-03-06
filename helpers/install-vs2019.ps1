@@ -1,4 +1,4 @@
-Install-Module -Name VSSetup -Scope AllUsers
+Install-Module -Name VSSetup -Scope CurrentUser
 
 if ((Get-VSSetupInstance).InstallationVersion -ge "16.0") {
     Write-Host "Found instance of VS 2019 - Skipping install"
