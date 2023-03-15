@@ -1,51 +1,44 @@
-Install-Module -Name VSSetup -Scope CurrentUser
+$installOptions = "";
 
-if ((Get-VSSetupInstance).InstallationVersion -ge "17.0") {
-    Write-Host "Found instance of VS 2022 - Skipping install"
-    -Join ("Product Name".PadRight(20), ": ", (Get-VSSetupInstance).DisplayName, "`n", "InstallationPath".PadRight(20), ": ", (Get-VSSetupInstance).InstallationPath)
+$processorArchitecture = (Get-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Session Manager\Environment').PROCESSOR_ARCHITECTURE;
+Write-Host "$processorArchitecture Processor Architecture Detected";
+
+if ($processorArchitecture -eq "AMD64") {
+    Write-Host "Supported";
+
+    $installOptions = "--add Microsoft.VisualStudio.Workload.NetWeb;includeRecommended";
+    $installOptions += " --add Microsoft.VisualStudio.Workload.ManagedDesktop;includeRecommended";
+    $installOptions += " --add Microsoft.VisualStudio.Workload.NativeDesktop;includeRecommended";
+    $installOptions += " --add Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Llvm.Clang";
+    $installOptions += " --add Microsoft.VisualStudio.Workload.Azure;includeRecommended";
+    $installOptions += " --add Microsoft.VisualStudio.Workload.NetCrossPlat;includeRecommended";
+    $installOptions += " --add Microsoft.VisualStudio.Workload.Data;includeRecommended";
+    $installOptions += " --add Microsoft.NetCore.Component.Runtime.3.1";
+    $installOptions += " --add Microsoft.NetCore.Component.Runtime.5.0";
+    $installOptions += " --add Microsoft.VisualStudio.Component.TestTools.WebLoadTest";
+    $installOptions += " --add icrosoft.VisualStudio.ComponentGroup.ArchitectureTools.Managed";
+    $installOptions += " --remove Microsoft.VisualStudio.Component.Azure.Powershell";
+}
+elseif ($processorArchitecture -eq "ARM64") {
+    Write-Host "Supported";
+
+    $installOptions = "--add Microsoft.VisualStudio.Workload.NetWeb;includeRecommended";
+    $installOptions += " --add Microsoft.VisualStudio.Workload.ManagedDesktop;includeRecommended";
+    $installOptions += " --add Microsoft.VisualStudio.Workload.NativeDesktop;includeRecommended";
+    $installOptions += " --add Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Llvm.Clang";
+    $installOptions += " --add Microsoft.VisualStudio.Component.TestTools.WebLoadTest";
 }
 else {
-    Write-Host "Downloading VS setup bootstrapper"
-    $toolsDir = (Join-Path "$(Split-Path -parent $MyInvocation.MyCommand.Definition)" 'vs')
-    $vsPath = Join-Path "$toolsDir" "\vs_enterprise.exe"
-    New-Item -Path $toolsDir  -ItemType directory -Force
+    Write-Host "NOT Supported";
+}
 
-    $url="https://aka.ms/vs/17/release/vs_enterprise.exe"
-    (New-Object System.Net.WebClient).DownloadFile($url, "$vsPath")
+if (! [String]::IsNullOrEmpty($installOptions)) {
+    $installOptions += " --passive";
+    $installOptions += " --norestart";
+    $installOptions += " --wait";
 
-    Write-Host "Installing VS 2022 with Base Workloads"
-    $commandArgs = @("--installPath `"$(Join-Path ${env:ProgramFiles(x86)} `"Microsoft Visual Studio\2022\Enterprise`")`"")
-    $commandArgs += "--add Microsoft.VisualStudio.Workload.CoreEditor;includeRecommended"
-    $commandArgs += "--add Microsoft.VisualStudio.Workload.Azure;includeRecommended"
-    $commandArgs += "--remove Microsoft.VisualStudio.Component.Azure.Compute.Emulator"
-    $commandArgs += "--remove Microsoft.VisualStudio.Component.Azure.Powershell"
-    $commandArgs += "--add Microsoft.VisualStudio.Workload.Data;includeRecommended"
-    $commandArgs += "--add Microsoft.VisualStudio.Workload.ManagedDesktop;includeRecommended"
-    $commandArgs += "--add Microsoft.VisualStudio.Workload.NetWeb;includeRecommended"
-    $commandArgs += "--add Microsoft.NetCore.Component.Runtime.3.1"
-    $commandArgs += "--add Microsoft.NetCore.Component.Runtime.5.0"
-    $commandArgs += "--add Microsoft.Net.Component.4.6.1.TargetingPack"
-    $commandArgs += "--add Microsoft.Net.Component.4.6.2.TargetingPack"
-    $commandArgs += "--add Microsoft.Net.Component.4.7.TargetingPack"
-    $commandArgs += "--add Microsoft.Net.Component.4.7.1.TargetingPack"
-    $commandArgs += "--add Microsoft.Net.Component.4.7.2.TargetingPack"
-    $commandArgs += "--add Microsoft.VisualStudio.Component.ClassDesigner"
-    $commandArgs += "--add Microsoft.VisualStudio.Component.CodeClone"
-    $commandArgs += "--add Microsoft.VisualStudio.Component.CodeMap"
-    $commandArgs += "--add Microsoft.VisualStudio.Component.GraphDocument"
-    $commandArgs += "--add Microsoft.VisualStudio.Component.SQL.LocalDB.Runtime"
-    $commandArgs += "--passive"
-    $commandArgs += "--norestart"
-    $commandArgs += "--wait"
+    Write-Host "Installing Visual Studio with the following options";
+    Write-Host $installOptions;
 
-    $p = Start-Process -FilePath $vsPath -ArgumentList $commandArgs -PassThru -Wait
-
-    if ($p.ExitCode -eq 0 -or $p.ExitCode -eq 3010) {
-        Write-Host "VS 2022 installation completed successfully" -ForegroundColor Green
-    }
-    else {
-        Write-Error (-Join("VS 2022 installation failed ", $p.ExitCode))
-    }
-
-    $p.Dispose()
+    winget install Microsoft.VisualStudio.2022.Enterprise --source winget --silent --accept-source-agreements --accept-package-agreements --override $installOptions
 }

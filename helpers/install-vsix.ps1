@@ -1,35 +1,65 @@
 Param (
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [string]$Name,
-    [Parameter(Mandatory=$true)]
-    [string]$Url
- ) #end param
+    [Parameter(Mandatory = $true)]
+    [string]$Url,
+    [Parameter(Mandatory = $false)]
+    $SessionGuid = (New-Guid)
+) #end param
 
- Import-Module "$env:ChocolateyInstall\helpers\chocolateyInstaller.psm1" -Force
+Import-Module "$env:ChocolateyInstall\helpers\chocolateyInstaller.psm1" -Force
 
- $packageNameVsix = -Join($Name,'.vsix')
- $toolsDir = (Join-Path "$(Split-Path -parent $MyInvocation.MyCommand.Definition)" 'vsix')
- $installPath = (Get-VSSetupInstance).InstallationPath
+# From https://florianwinkelbauer.com/posts/2019-03-07-install-vsix-powershell/
+function Get-VsixFile {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Url,
+        [Parameter(Mandatory = $true)]
+        [string]$SessionGuid
+    )
 
- if(!$installPath) {
-     throw "There was an error finding latest Visual Studio install location. Please make sure Visual Studio (2019 or later) is installed correctly."
- }
+    $file = New-TemporaryFile
+    # create a session that will be used to download from marketplace.visualstudio.com
+    $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+    $cookie = New-Object System.Net.Cookie("Gallery-Service-UserIdentifier", $SessionGuid, "/", "marketplace.visualstudio.com")
+    $session.Cookies.Add($cookie)
 
- $vsixInstaller = gci -File -Recurse -Filter vsixinstaller.exe -Path $installPath
+    try {
+        Invoke-WebRequest -Uri $Url -Method Get -WebSession $session -OutFile $file
+        return $file
+    }
+    catch {
+        Remove-Item $file -Force
+        throw $_
+    }
+}
 
- Write-Host "Downloading the $Name Visual Studio 2019 Extension ... "
- New-Item -Path $toolsDir  -ItemType directory -Force
- (New-Object System.Net.WebClient).DownloadFile($Url, (Join-Path $toolsDir $packageNameVsix))
+$installPath = (Get-VSSetupInstance).InstallationPath
 
- Write-Host "Installing the $Name Visual Studio 2019 Extension ... "
- $result = Install-Vsix -Installer $vsixInstaller.FullName -InstallFile (Join-Path $toolsDir $packageNameVsix)
+if (!$installPath) {
+    throw "There was an error finding latest Visual Studio install location. Please make sure Visual Studio is installed correctly."
+}
 
- if($result -eq 2004) { #2004: Blocking Process (need to close VS)
-     throw "A process is blocking the installation of the Visual Studio Extension. Please close all Visual Studio instances and try again."
- }
+Write-Host "Downloading the $Name Visual Studio Extension ... "
+$file = Get-VsixFile -Url $Url -SessionGuid $SessionGuid
 
- if($result -gt 0 -and $result -ne 1001) { #1001: Already installed
-     throw "There was an error installing the $Name Visual Studio 2019 Extension. The exit code returned was $result."
- }
+if ($null -ne $file) {
+    Write-Host "Installing the $Name Visual Studio Extension ... "
+    $vsixInstaller = gci -File -Recurse -Filter vsixinstaller.exe -Path $installPath
+    $result = Install-Vsix -Installer $vsixInstaller.FullName -InstallFile $file
+}
+else {
+    throw "Visual Studio Extension $Name is not available for install."
+}
 
- Write-Host "Successfully installed the $Name Visual Studio 2019 Extension." -ForegroundColor Green
+if ($result -eq 2004) {
+    #2004: Blocking Process (need to close VS)
+    throw "A process is blocking the installation of the Visual Studio Extension. Please close all Visual Studio instances and try again."
+}
+
+if ($result -gt 0 -and $result -ne 1001) {
+    #1001: Already installed
+    throw "There was an error installing the $Name Visual Studio Extension. The exit code returned was $result."
+}
+
+Write-Host "Successfully installed the $Name Visual Studio Extension with result $result." -ForegroundColor Green
