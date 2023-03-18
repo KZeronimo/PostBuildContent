@@ -25,7 +25,7 @@ function Get-VsixFile {
     $session.Cookies.Add($cookie)
 
     try {
-        Invoke-WebRequest -Uri $Url -Method Get -WebSession $session -OutFile $file
+        Invoke-WebRequest -UseBasicParsing -Uri $Url -Method Get -WebSession $session -OutFile $file
         return $file
     }
     catch {
