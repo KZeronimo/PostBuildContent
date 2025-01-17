@@ -6,7 +6,7 @@ Param (
 
 )
 
-cinst chocolatey-font-helpers.extension -y
+choco install chocolatey-font-helpers.extension -y
 Import-Module "$env:ChocolateyInstall\helpers\chocolateyInstaller.psm1" -Force
 
 $fontsDir = (Join-Path "$(Split-Path -parent $MyInvocation.MyCommand.Definition)" 'fonts')

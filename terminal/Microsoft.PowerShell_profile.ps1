@@ -1,29 +1,25 @@
 ﻿# Only load oh-my-posh if PS is running from ConEmu, Windows Terminal, or Terminal in vscode
-if ($env:ConEmuTask -or $env:ConEmuPID -or $env:WT_SESSION -or $env:TERM_PROGRAM -eq "vscode")
-{
+if ($env:ConEmuTask -or $env:ConEmuPID -or $env:WT_SESSION -or $env:TERM_PROGRAM -eq "vscode") {
     # Shorten prompt by providing your uesername
     $env:POSH_SESSION_DEFAULT_USER = [System.Environment]::UserName
     # Import oh-my-posh and dependecies
     Import-Module -Name posh-git -ErrorAction SilentlyContinue
     oh-my-posh --init --shell pwsh --config $env:POSH_THEMES_PATH\agnoster-mesh.omp.json | Invoke-Expression
 }
-else
-{
+else {
     # Load posh-git
     Import-Module -Name posh-git -ErrorAction SilentlyContinue
 }
 
 # Chocolatey profile
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-if (Test-Path($ChocolateyProfile))
-{
-  Import-Module "$ChocolateyProfile"
+if (Test-Path($ChocolateyProfile)) {
+    Import-Module "$ChocolateyProfile"
 }
 
-# Load posh-docker module
-if (Get-Module -ListAvailable -Name posh-docker)
-{
-    Import-Module -Name posh-docker
+# Load Docker Completion module
+if (Get-Module -ListAvailable -Name DockerCompletion) {
+    Import-Module -Name DockerCompletion
 }
 
 # Alias
